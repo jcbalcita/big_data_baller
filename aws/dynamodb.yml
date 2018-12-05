@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: NBA Box Score Table
+Parameters:
+  ReadCapacityUnits:
+    Description: Provisioned read throughput
+    Type: Number
+    Default: '5'
+    MinValue: '5'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+  WriteCapacityUnits:
+    Description: Provisioned write throughput
+    Type: Number
+    Default: '10'
+    MinValue: '5'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+Resources:
+  NbaBoxScores:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: Date
+        AttributeType: N
+      - AttributeName: Teams
+        AttributeType: S
+      KeySchema:
+      - AttributeName: Date
+        KeyType: HASH
+      - AttributeName: Teams
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+Outputs:
+  TableName:
+    Value: NbaBoxScores
+    Description: Table name of the newly created DynamoDB table
