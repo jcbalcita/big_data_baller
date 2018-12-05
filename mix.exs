@@ -21,7 +21,11 @@ defmodule BigDataBaller.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nba, "~> 0.3.0"}
+      {:nba, "~> 0.3.2"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_dynamo, "~> 2.0"},
+      {:poison, "~> 4.0"},
+      {:hackney, "~> 1.9"}
     ]
   end
 end
