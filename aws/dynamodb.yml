@@ -22,7 +22,7 @@ Resources:
     Properties:
       AttributeDefinitions:
       - AttributeName: Date
-        AttributeType: N
+        AttributeType: S
       - AttributeName: Teams
         AttributeType: S
       KeySchema:
@@ -34,6 +34,11 @@ Resources:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
 Outputs:
-  TableName:
+  NbaTableName:
     Value: NbaBoxScores
-    Description: Table name of the newly created DynamoDB table
+    Description: Table name of the NBA DynamoDB table
+  NbaTableArn:
+    Value: !GetAtt NbaBoxScores.Arn
+    Description: Arn of the NBA DynamoDB table
+    Export:
+      Name: NbaTableArn
