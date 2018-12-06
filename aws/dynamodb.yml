@@ -17,7 +17,7 @@ Parameters:
     MinValue: '5'
     MaxValue: '10000'
     ConstraintDescription: must be between 5 and 10000
-  BigBaller:
+  BigBallerUser:
     Description: BigBaller app user
     Type: String
     Default: NbaDynamo
@@ -70,5 +70,5 @@ Resources:
           - "dynamodb:PutItem"
           Resource: !GetAtt NbaBoxScoresDynamo.Arn
       Users:
-        - !Ref BigBaller
+        - !Ref BigBallerUser
       ManagedPolicyName: NbaDynamoReadWrite
