@@ -14,12 +14,15 @@ use Mix.Config
 #
 # and access this configuration in your application as:
 #
-#     Application.get_env(:big_data_baller, :key)
 #
 # You can also configure a 3rd-party app:
 #
 #     config :logger, level: :info
 #
+
+config :ex_aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

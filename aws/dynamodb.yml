@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: NBA Box Score Table
+Description: NBA Box Score Dynamo table and permission
+
 Parameters:
   ReadCapacityUnits:
     Description: Provisioned read throughput
@@ -16,29 +17,58 @@ Parameters:
     MinValue: '5'
     MaxValue: '10000'
     ConstraintDescription: must be between 5 and 10000
-Resources:
-  NbaBoxScores:
+  BigBaller:
+    Description: BigBaller app user
+    Type: String
+    Default: NbaDynamo
+
+Resources:  
+  NbaBoxScoresDynamo:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: NbaBoxScores
       AttributeDefinitions:
-      - AttributeName: Date
+      - AttributeName: GameDate
         AttributeType: S
       - AttributeName: Teams
         AttributeType: S
       KeySchema:
-      - AttributeName: Date
+      - AttributeName: GameDate
         KeyType: HASH
       - AttributeName: Teams
         KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
-Outputs:
-  NbaTableName:
-    Value: NbaBoxScores
-    Description: Table name of the NBA DynamoDB table
-  NbaTableArn:
-    Value: !GetAtt NbaBoxScores.Arn
-    Description: Arn of the NBA DynamoDB table
-    Export:
-      Name: NbaTableArn
+  NbaDynamoPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: ListAndDescribe
+          Effect: Allow
+          Action:
+          - "dynamodb:List*"
+          - "dynamodb:DescribeReservedCapacity*"
+          - "dynamodb:DescribeLimits"
+          - "dynamodb:DescribeTimeToLive"
+          Resource: "*"
+        - Sid: SpecificTable
+          Effect: Allow
+          Action:
+          - "dynamodb:BatchGet*"
+          - "dynamodb:DescribeStream"
+          - "dynamodb:DescribeTable"
+          - "dynamodb:Get*"
+          - "dynamodb:Query"
+          - "dynamodb:Scan"
+          - "dynamodb:BatchWrite*"
+          - "dynamodb:CreateTable"
+          - "dynamodb:Delete*"
+          - "dynamodb:Update*"
+          - "dynamodb:PutItem"
+          Resource: !GetAtt NbaBoxScoresDynamo.Arn
+      Users:
+        - !Ref BigBaller
+      ManagedPolicyName: NbaDynamoReadWrite
