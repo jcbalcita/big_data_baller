@@ -24,6 +24,7 @@ defmodule BigDataBaller.MixProject do
       {:nba, "~> 0.3.2"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_dynamo, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:hackney, "~> 1.9"}
     ]
