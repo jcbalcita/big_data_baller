@@ -12,7 +12,7 @@ defmodule BigDataBaller do
   end
 
   def fetch(date_time) do
-    case Nba.Stats.scoreboard(%{"gameDate" => date_string(date_time, @game_date_format)})["GameHeader"] do
+    case Nba.Stats.scoreboard(%{"gameDate" => Timex.format!(date_time, @game_date_format)})["GameHeader"] do
       nil ->
         IO.puts("you got rate limited, dumbass")
 
@@ -28,17 +28,19 @@ defmodule BigDataBaller do
   end
 
   def handle_header(header, date_time) do
-    season =
-      Timex.format!(date_time, "{YYYY}") <>
-        "-" <> Timex.format!(Timex.add(date_time, Timex.Duration.from_days(367)), "{YY}")
+    season_start_year = header["SEASON"]
+    season_end_year = 
+      elem(Integer.parse(season_start_year), 0) + 1
+      |> Integer.to_string()
+      |> String.slice(-2..-1)
 
-    season_dir = header["SEASON"]
+
     gid = header["GAME_ID"]
     [_, game_code] = String.split(header["GAMECODE"], "/")
     year_month_day = Timex.format!(date_time, "{YYYY}/{0M}/{0D}")
-    s3_path = "#{season_dir}/#{year_month_day}/#{gid}-#{game_code}.json"
+    s3_path = "#{season_start_year}/#{year_month_day}/#{gid}-#{game_code}.json"
 
-    Nba.Stats.box_score(%{"GameID" => gid, "Season" => season})
+    Nba.Stats.box_score(%{"GameID" => gid, "Season" => "#{season_start_year}-#{season_end_year}"})
     |> Poison.encode!()
     |> write_to_s3(s3_path)
   end
