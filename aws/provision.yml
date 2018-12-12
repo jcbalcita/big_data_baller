@@ -81,9 +81,9 @@ Resources:
     Properties:
       PolicyDocument:
         Version: "2012-10-17"
-        Statement: 
+        Statement:
         - Sid: Stmt1544157958736
-          Action: 
+          Action:
           - "s3:DeleteObject*"
           - "s3:GetObject*"
           - "s3:PutObject*"
@@ -93,4 +93,3 @@ Resources:
       Users:
       - !Ref BigBallerUser
       ManagedPolicyName: NbaS3ReadWrite
-      
