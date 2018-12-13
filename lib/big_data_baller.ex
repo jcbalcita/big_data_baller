@@ -2,6 +2,7 @@ defmodule BigDataBaller do
   @moduledoc """
   """
   @game_date_format "{M}/{D}/{YYYY}"
+  @s3_directory_format "{YYYY}/{0M}/{0D}"
   @s3_bucket_name "nba-box-scores-s3"
 
   def run({year, month, start_day}, end_day) do
@@ -29,15 +30,14 @@ defmodule BigDataBaller do
 
   def handle_header(header, date_time) do
     season_start_year = header["SEASON"]
-    season_end_year = 
+    season_end_year =
       elem(Integer.parse(season_start_year), 0) + 1
       |> Integer.to_string()
       |> String.slice(-2..-1)
 
-
     gid = header["GAME_ID"]
     [_, game_code] = String.split(header["GAMECODE"], "/")
-    year_month_day = Timex.format!(date_time, "{YYYY}/{0M}/{0D}")
+    year_month_day = Timex.format!(date_time, @s3_directory_format)
     s3_path = "#{season_start_year}/#{year_month_day}/#{gid}-#{game_code}.json"
 
     Nba.Stats.box_score(%{"GameID" => gid, "Season" => "#{season_start_year}-#{season_end_year}"})

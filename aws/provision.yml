@@ -27,23 +27,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: nba-box-scores-s3
-  NbaBoxScoresDynamo:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: nba-box-scores-dynamo
-      AttributeDefinitions:
-      - AttributeName: GameDate
-        AttributeType: S
-      - AttributeName: Teams
-        AttributeType: S
-      KeySchema:
-      - AttributeName: GameDate
-        KeyType: HASH
-      - AttributeName: Teams
-        KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: !Ref ReadCapacityUnits
-        WriteCapacityUnits: !Ref WriteCapacityUnits
   NbaDynamoPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
