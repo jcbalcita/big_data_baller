@@ -17,10 +17,11 @@ defmodule BigDataBaller do
       nil ->
         IO.puts("you got rate limited, dumbass")
 
-      headers ->
-        headers
-        |> Enum.map(&Task.async(fn -> handle_header(&1, date_time) end))
-        |> Enum.map(&Task.await/1)
+      game_headers ->
+        game_headers
+        # |> Enum.map(&Task.async(fn -> process_game(&1, date_time) end))
+        |> Enum.each(fn header -> process_game(header, date_time) end)
+        # |> Enum.map(&Task.await/1)
     end
   end
 
@@ -28,7 +29,7 @@ defmodule BigDataBaller do
     Timex.format!(date_time, format)
   end
 
-  def handle_header(header, date_time) do
+  def process_game(header, date_time) do
     season_start_year = header["SEASON"]
     season_end_year =
       elem(Integer.parse(season_start_year), 0) + 1
