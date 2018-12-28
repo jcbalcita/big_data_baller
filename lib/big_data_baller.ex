@@ -5,14 +5,14 @@ defmodule BigDataBaller do
   @s3_directory_format "{YYYY}/{0M}/{0D}"
   @s3_bucket_name "nba-box-scores-s3"
 
-  def run({year, month, start_day}, end_day) do
+  def box_scores({year, month, start_day}, end_day) do
     start_day..end_day
     |> Enum.each(fn day ->
-      fetch(Timex.to_datetime({year, month, day}))
+      fetch_box_score(Timex.to_datetime({year, month, day}))
     end)
   end
 
-  def fetch(date_time) do
+  def fetch_box_score(date_time) do
     case Nba.Stats.scoreboard(%{"gameDate" => Timex.format!(date_time, @game_date_format)})["GameHeader"] do
       nil ->
         IO.puts("you got rate limited, dumbass")
@@ -23,10 +23,6 @@ defmodule BigDataBaller do
         |> Enum.each(fn header -> process_game(header, date_time) end)
         # |> Enum.map(&Task.await/1)
     end
-  end
-
-  def date_string(date_time, format) do
-    Timex.format!(date_time, format)
   end
 
   def process_game(header, date_time) do
