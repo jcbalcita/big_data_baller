@@ -28,7 +28,8 @@ defmodule BigDataBaller.MixProject do
       {:poison, "~> 4.0"},
       {:sweet_xml, "~> 0.6.5"},
       {:hackney, "~> 1.9"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:csv, "~> 2.0.0"}
     ]
   end
 end

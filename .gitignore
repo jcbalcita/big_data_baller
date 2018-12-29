@@ -24,3 +24,4 @@ big_data_baller-*.tar
 
 # AWS
 .env
+/syncS3/
