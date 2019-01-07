@@ -6,11 +6,11 @@ defmodule BigDataBaller do
   @s3_bucket_name "nba-box-scores-s3"
 
   def box_scores(start_date, end_date) do
-    with {:ok, start_datetime, end_datetime} <- get_datetimes(start_date, end_date) do
+    with {start_datetime, end_datetime} <- get_datetimes(start_date, end_date) do
       step_through_days(start_datetime, end_datetime)
       IO.puts("Completed fetching box scores for the specified time range")
     else
-      _ -> IO.puts("Bad dates...")
+      :error -> IO.puts("Bad dates...")
     end
   end
 
@@ -22,15 +22,16 @@ defmodule BigDataBaller do
       game_headers ->
         game_headers
         # |> Enum.map(&Task.async(fn -> process_game(&1, datetime) end))
-        |> Enum.each(fn header -> process_game(header, datetime) end)
         # |> Enum.map(&Task.await/1)
+        |> Enum.each(fn header -> process_game(header, datetime) end)
     end
   end
 
   defp process_game(header, datetime) do
     season_start_year = header["SEASON"]
+
     season_end_year =
-      elem(Integer.parse(season_start_year), 0) + 1
+      (elem(Integer.parse(season_start_year), 0) + 1)
       |> Integer.to_string()
       |> String.slice(-2..-1)
 
@@ -55,14 +56,17 @@ defmodule BigDataBaller do
     case {Timex.to_datetime(start_date), Timex.to_datetime(end_date)} do
       {{:error, _}, _} -> :error
       {_, {:error, _}} -> :error
-      {sdt, edt} -> {:ok, sdt, edt}
+      {sdt, edt} -> {sdt, edt}
+      _ -> :error
     end
   end
 
   defp step_through_days(datetime, end_datetime) do
-    case Timex.after?(datetime, end_datetime) do 
-      true -> IO.puts("Done stepping through days")
-      false -> 
+    case Timex.after?(datetime, end_datetime) do
+      true ->
+        IO.puts("Done stepping through days")
+
+      false ->
         fetch_box_scores(datetime)
         step_through_days(Timex.add(datetime, Timex.Duration.from_days(1)), end_datetime)
     end

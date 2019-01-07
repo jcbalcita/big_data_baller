@@ -1,5 +1,4 @@
 defmodule BigDataBaller.CsvWriter do
-
   def json_to_csv(year) do
     File.touch("#{year}.csv")
     {:ok, file} = File.open("#{year}.csv", [:write, :utf8])
@@ -15,7 +14,7 @@ defmodule BigDataBaller.CsvWriter do
   defp convert_to_matrix(filepaths) do
     filepaths
     |> Enum.reduce([], fn file, acc ->
-      IO.inspect file
+      IO.inspect(file)
       Enum.concat(acc, player_rows(file))
     end)
   end
@@ -24,7 +23,7 @@ defmodule BigDataBaller.CsvWriter do
     json_map =
       with {:ok, body} <- File.read(file),
            {:ok, json} <- Poison.decode(body),
-      do: json
+           do: json
 
     Map.get(json_map, "PlayerStats")
     |> Enum.map(&player_map_to_list/1)
