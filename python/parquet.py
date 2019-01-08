@@ -1,11 +1,12 @@
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.types import *
+import pyspark.sql.functions as f
 
 
 if __name__ == "__main__":
-    sc = SparkContext(appName="CsvToParquet")
-    sqlContext = SQLContext(sc)
+    sc = SparkContext(appName="parquet")
+    sql = SQLContext(sc)
 
     int_cols = [
             "player_id",
@@ -48,11 +49,11 @@ if __name__ == "__main__":
             StructField("plus_minus", StringType(), True),
             StructField("game_id", StringType(), True)])
 
-    rdd = sc.textFile("2018.csv").map(lambda line: line.split(","))
-    df = sqlContext.createDataFrame(rdd, schema)
+    for year in range(1996, 2018):
+        rdd = sc.textFile("python/csv/" + str(year) + ".csv").map(lambda line: line.split(","))
+        df = sqlContext.createDataFrame(rdd, schema)
 
-    for col in int_cols:
-        df = df.withColumn(col, df[col].cast(IntegerType()))
+        for col in int_cols:
+            df = df.withColumn(col, df[col].cast(IntegerType()))
 
-    df.write.parquet('./input-parquet')
-
+        df.write.parquet("python/parquet/" + str(year))
