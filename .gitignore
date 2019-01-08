@@ -28,3 +28,6 @@ big_data_baller-*.tar
 
 .vscode/
 .DS_Store
+
+python/csv/
+python/parquet/
