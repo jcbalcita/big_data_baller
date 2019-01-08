@@ -57,7 +57,6 @@ defmodule BigDataBaller do
       {{:error, _}, _} -> :error
       {_, {:error, _}} -> :error
       {sdt, edt} -> {sdt, edt}
-      _ -> :error
     end
   end
 
