@@ -49,11 +49,11 @@ if __name__ == "__main__":
             StructField("plus_minus", StringType(), True),
             StructField("game_id", StringType(), True)])
 
-    for year in range(1996, 2018):
-        rdd = sc.textFile("python/csv/" + str(year) + ".csv").map(lambda line: line.split(","))
-        df = sqlContext.createDataFrame(rdd, schema)
+    for year in range(1996, 2019):
+        rdd = sc.textFile("spark/csv/" + str(year) + ".csv").map(lambda line: line.split(","))
+        df = sql.createDataFrame(rdd, schema)
 
         for col in int_cols:
             df = df.withColumn(col, df[col].cast(IntegerType()))
 
-        df.write.parquet("python/parquet/" + str(year))
+        df.write.parquet("spark/parquet/" + str(year))

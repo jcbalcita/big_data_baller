@@ -1,7 +1,14 @@
 defmodule BigDataBaller.CsvWriter do
+
+  def convert_all(start_year \\ 1996, end_year \\ 2018) do
+    start_year..end_year
+    |> Enum.each(&json_to_csv/1)
+  end
+
   def json_to_csv(year) do
-    File.touch("#{year}.csv")
-    {:ok, file} = File.open("#{year}.csv", [:write, :utf8])
+    File.mkdir("spark/csv")
+    File.touch("spark/csv/#{year}.csv")
+    {:ok, file} = File.open("spark/csv/#{year}.csv", [:write, :utf8])
 
     Path.wildcard("syncS3/#{year}/**/*.json")
     |> convert_to_matrix()
