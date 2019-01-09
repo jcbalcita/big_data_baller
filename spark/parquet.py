@@ -3,6 +3,7 @@ from pyspark.sql import SQLContext
 from pyspark.sql.types import *
 import pyspark.sql.functions as f
 
+# i don't know how to python, sorry
 
 if __name__ == "__main__":
     sc = SparkContext(appName="parquet")
