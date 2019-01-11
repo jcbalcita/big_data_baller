@@ -115,9 +115,9 @@ defmodule BigDataBaller.CsvWriter do
   end
 
   def get_season_year(filepath) do
-    season_start_year = filepath |> String.split("/") |> Enum.at(1) |> Integer.parse()
-    season_end_year = (season_start_year + 1) |> Integer.to_string() |> String.slice(2)
+    {season_start_year, _} = filepath |> String.split("/") |> Enum.at(1) |> Integer.parse()
+    season_end_year = (season_start_year + 1) |> Integer.to_string() |> String.slice(2..3)
 
-    season_start_year <> "-" <> season_end_year
+    "#{season_start_year}" <> "-" <> season_end_year
   end
 end
