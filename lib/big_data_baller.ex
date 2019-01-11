@@ -5,6 +5,10 @@ defmodule BigDataBaller do
   @s3_directory_format "{YYYY}/{0M}/{0D}"
   @s3_bucket_name "nba-box-scores-s3"
 
+  def box_scores(date) do
+    box_scores(date, date)
+  end
+
   def box_scores(start_date, end_date) do
     with {start_datetime, end_datetime} <- get_datetimes(start_date, end_date) do
       step_through_days(start_datetime, end_datetime)
