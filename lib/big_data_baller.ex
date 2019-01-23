@@ -12,7 +12,6 @@ defmodule BigDataBaller do
   def box_scores(start_date, end_date) do
     with :ok <- aws_creds?(),
          {start_datetime, end_datetime} <- get_datetimes(start_date, end_date) do
-
       step_through_days(start_datetime, end_datetime)
     else
       :date_error -> IO.puts("Bad dates...")
@@ -22,12 +21,15 @@ defmodule BigDataBaller do
 
   def fetch_box_scores(datetime) do
     with {:ok, date_string} <- Timex.format(datetime, @game_date_format),
-         response <- Nba.Stats.scoreboard(%{"gameDate" => date_string}),
+         {:ok, response} <- Nba.Stats.scoreboard(%{"gameDate" => date_string}),
          game_headers <- Map.get(response, "GameHeader") do
-
       if game_headers,
         do: Enum.each(game_headers, &process_game(&1, datetime)),
         else: IO.puts("Error fetching scoreboard")
+    else
+      {:error, message} ->
+        date = Timex.format(datetime, @game_date_format)
+        IO.puts("Unable to fetch scoreboard for #{date}... #{message}")
     end
   end
 
@@ -41,6 +43,7 @@ defmodule BigDataBaller do
   defp process_game(header, datetime) do
     season_start_year = header["SEASON"]
     season_end_year = season_year_suffix(season_start_year)
+    season_value = "#{season_start_year}-#{season_end_year}"
     gid = header["GAME_ID"]
     [_, game_code] = String.split(header["GAMECODE"], "/")
     year_month_day = Timex.format!(datetime, @s3_directory_format)
@@ -48,9 +51,13 @@ defmodule BigDataBaller do
 
     Process.sleep(1000)
 
-    Nba.Stats.box_score(%{"GameID" => gid, "Season" => "#{season_start_year}-#{season_end_year}"})
-    |> Poison.encode!()
-    |> write_to_s3(s3_path)
+    case Nba.Stats.box_score(%{"GameID" => gid, "Season" => season_value}) do
+      {:ok, response} ->
+        Poison.encode!(response) |> write_to_s3(s3_path)
+
+      {:error, message} ->
+        IO.puts("Error fetching box score for #{gid}-#{game_code}... #{message}")
+    end
   end
 
   def write_to_s3(text, path) do
