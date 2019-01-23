@@ -54,14 +54,9 @@ defmodule BigDataBaller.CsvWriter do
   end
 
   def get_player_stats(player_map, home_team_name) do
-    minutes =
-      if player_map["MIN"],
-        do: String.split(player_map["MIN"], ":") |> List.first() |> Integer.parse() |> elem(0),
-        else: nil
-
     [
       player_map["PLAYER_ID"],
-      minutes,
+      minutes(player_map["MIN"]),
       player_map["PTS"],
       player_map["OREB"],
       player_map["DREB"],
@@ -85,6 +80,11 @@ defmodule BigDataBaller.CsvWriter do
       player_map["TEAM_ABBREVIATION"] == home_team_name
     ]
   end
+
+  defp minutes(nil), do: nil
+
+  defp minutes(min_str),
+    do: String.split(min_str, ":") |> List.first() |> Integer.parse() |> elem(0)
 
   def get_home_and_away_teams(filepath) do
     String.split(filepath, "/")
@@ -111,7 +111,6 @@ defmodule BigDataBaller.CsvWriter do
   end
 
   defp get_opposing_team_stats(player_map, season, {home_team_id, away_team_id}) do
-
   end
 
   def get_season_year(filepath) do
