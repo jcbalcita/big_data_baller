@@ -1,13 +1,24 @@
 defmodule BigDataBaller do
   @moduledoc """
   """
+  alias BigDataBaller.Util
+
   @game_date_format "{M}/{D}/{YYYY}"
   @s3_directory_format "{YYYY}/{0M}/{0D}"
   @s3_bucket_name "nba-box-scores-s3"
 
-  def box_scores(date) do
-    box_scores(date, date)
+  def box_scores do
+    yesterday =
+      Timex.now()
+      |> Timex.subtract(Timex.Duration.from_days(1))
+      |> Timex.format!("{YYYY}-{M}-{D}")
+      |> String.split("/")
+      |> List.to_tuple()
+
+    box_scores(yesterday)
   end
+
+  def box_scores(date), do: box_scores(date, date)
 
   def box_scores(start_date, end_date) do
     with :ok <- aws_creds?(),
@@ -25,29 +36,23 @@ defmodule BigDataBaller do
          game_headers <- Map.get(response, "GameHeader") do
       if game_headers,
         do: Enum.each(game_headers, &process_game(&1, datetime)),
-        else: IO.puts("Error fetching scoreboard")
+        else: IO.puts("Error fetching scoreboard for #{date_string}")
     else
       {:error, message} ->
-        date = Timex.format(datetime, @game_date_format)
-        IO.puts("Unable to fetch scoreboard for #{date}... #{message}")
+        date = Timex.format!(datetime, @game_date_format)
+        IO.puts message
+        IO.puts "Unable to fetch scoreboard for #{date}"
     end
-  end
-
-  def team_four_factors(start_year \\ 1996, end_year \\ 2019) do
-    Enum.each(start_year..end_year, fn year -> four_factors_by_year(year) end)
-  end
-
-  defp four_factors_by_year(year) do
   end
 
   defp process_game(header, datetime) do
     season_start_year = header["SEASON"]
-    season_end_year = season_year_suffix(season_start_year)
+    season_end_year = Util.season_year_suffix(season_start_year)
     season_value = "#{season_start_year}-#{season_end_year}"
     gid = header["GAME_ID"]
     [_, game_code] = String.split(header["GAMECODE"], "/")
     year_month_day = Timex.format!(datetime, @s3_directory_format)
-    s3_path = "#{season_start_year}/#{year_month_day}/#{gid}-#{game_code}.json"
+    s3_path = "box_score_trad/#{season_start_year}/#{year_month_day}/#{gid}-#{game_code}.json"
 
     Process.sleep(1000)
 
@@ -85,17 +90,11 @@ defmodule BigDataBaller do
   defp step_through_days(datetime, end_datetime) do
     case Timex.after?(datetime, end_datetime) do
       true ->
-        IO.puts("Completed fetching box scores for the specified time range")
+        IO.puts("Done fetching box scores for the specified time range")
 
       false ->
         fetch_box_scores(datetime)
         step_through_days(Timex.add(datetime, Timex.Duration.from_days(1)), end_datetime)
     end
-  end
-
-  defp season_year_suffix(season_start_year) do
-    (elem(Integer.parse(season_start_year), 0) + 1)
-    |> Integer.to_string()
-    |> String.slice(-2..-1)
   end
 end
