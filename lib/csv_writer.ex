@@ -1,4 +1,6 @@
 defmodule BigDataBaller.CsvWriter do
+  alias BigDataBaller.Util
+
   def convert(start_year \\ 1996, end_year \\ 2018) do
     start_year..end_year
     |> Enum.each(&json_to_csv/1)
@@ -9,7 +11,7 @@ defmodule BigDataBaller.CsvWriter do
     File.touch("spark/csv/#{year}.csv")
     {:ok, file} = File.open("spark/csv/#{year}.csv", [:write, :utf8])
 
-    Path.wildcard("syncS3/#{year}/**/*.json")
+    Path.wildcard("syncS3/box_score_trad/#{year}/**/*.json")
     |> convert_to_matrix()
     |> CSV.encode()
     |> Enum.each(&IO.write(file, &1))
@@ -27,8 +29,8 @@ defmodule BigDataBaller.CsvWriter do
   defp player_rows(filepath) do
     with {:ok, body} <- File.read(filepath),
          {:ok, json} <- Poison.decode(body),
-         home_away_names <- get_home_and_away_teams(filepath),
-         season <- get_season_year(filepath) do
+         home_away_names <- Util.home_and_away_teams_from_filepath(filepath),
+         season <- Util.season_year_from_filepath(filepath) do
       create_rows(json, season, home_away_names)
     else
       _ -> IO.puts("[ERROR] Unable to ro read #{filepath}")
@@ -111,12 +113,5 @@ defmodule BigDataBaller.CsvWriter do
   end
 
   defp get_opposing_team_stats(player_map, season, {home_team_id, away_team_id}) do
-  end
-
-  def get_season_year(filepath) do
-    {season_start_year, _} = filepath |> String.split("/") |> Enum.at(1) |> Integer.parse()
-    season_end_year = (season_start_year + 1) |> Integer.to_string() |> String.slice(2..3)
-
-    "#{season_start_year}" <> "-" <> season_end_year
   end
 end
