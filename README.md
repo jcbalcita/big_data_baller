@@ -1,5 +1,8 @@
 # BigDataBaller
 
+## nb.
+This project is one big prototype at this point. Don't expect professional quality code, or tests for that matter. 
+
 ## TODO
 
 - ~~Grab all box scores from 1995-96 to the present and put onto S3 in json format~~

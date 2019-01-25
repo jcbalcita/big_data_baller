@@ -5,7 +5,6 @@ defmodule BigDataBaller do
 
   @game_date_format "{M}/{D}/{YYYY}"
   @s3_directory_format "{YYYY}/{0M}/{0D}"
-  @s3_bucket_name "nba-box-scores-s3"
 
   def box_scores do
     yesterday =
@@ -58,7 +57,7 @@ defmodule BigDataBaller do
 
     case Nba.Stats.box_score(%{"GameID" => gid, "Season" => season_value}) do
       {:ok, response} ->
-        Poison.encode!(response) |> write_to_s3(s3_path)
+        Poison.encode!(response) |> Util.write_to_s3(s3_path)
 
       {:error, message} ->
         IO.puts("Error fetching box score for #{gid}-#{game_code}... #{message}")
