@@ -1,11 +1,14 @@
 defmodule BigDataBaller.Util do
+  @s3_bucket_name "nba-box-scores-s3"
+
   def season_year_suffix(season_start_year) when is_integer(season_start_year) do
-    Integer.to_string(season_start_year)
+    (season_start_year + 1)
+    |> Integer.to_string()
     |> String.slice(-2..-1)
   end
 
   def season_year_suffix(season_start_year) when is_binary(season_start_year) do
-    (elem(Integer.parse(season_start_year), 0) + 1)
+    (elem(Integer.parse(season_start_year), 0))
     |> season_year_suffix()
   end
 
@@ -24,5 +27,10 @@ defmodule BigDataBaller.Util do
     |> String.split(".")
     |> List.first()
     |> String.split_at(3)
+  end
+
+  def write_to_s3(text, path) do
+    ExAws.S3.put_object(@s3_bucket_name, path, text)
+    |> ExAws.request()
   end
 end
