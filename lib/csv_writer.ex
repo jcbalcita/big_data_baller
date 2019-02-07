@@ -1,12 +1,11 @@
-defmodule BigDataBaller.CsvWriter do
+defmodule BigDataBaller.CsvWriter.BoxScore do
   alias BigDataBaller.Util
 
-  def convert(start_year \\ 1996, end_year \\ 2018) do
-    start_year..end_year
-    |> Enum.each(&json_to_csv/1)
+  def to_csv(start_year \\ 1996, end_year \\ 2018) do
+    start_year..end_year |> Enum.each(&csv_year/1)
   end
 
-  def json_to_csv(year) do
+  def csv_year(year) do
     File.mkdir("spark/csv")
     File.touch("spark/csv/#{year}.csv")
     {:ok, file} = File.open("spark/csv/#{year}.csv", [:write, :utf8])
@@ -28,7 +27,7 @@ defmodule BigDataBaller.CsvWriter do
 
   defp player_rows(filepath) do
     with {:ok, body} <- File.read(filepath),
-         {:ok, json} <- Poison.decode(body),
+         {:ok, json} <- Jason.decode(body),
          home_away_names <- Util.home_and_away_teams_from_filepath(filepath),
          season <- Util.season_year_from_filepath(filepath) do
       create_rows(json, season, home_away_names)
@@ -40,19 +39,9 @@ defmodule BigDataBaller.CsvWriter do
   def create_rows(box_score, season, home_away_names) do
     player_stats = Map.get(box_score, "PlayerStats")
     team_stats = Map.get(box_score, "TeamStats")
-    team_home_away_info = get_team_home_away_status(team_stats, home_away_names)
+    [{_, home_team} | _ ] = get_team_home_away_status(team_stats, home_away_names)
 
-    player_stats
-    |> Enum.map(fn player_map ->
-      create_row(player_map, season, team_home_away_info)
-    end)
-  end
-
-  def create_row(player_map, season, [{h_id, h_name}, {a_id, _}]) do
-    player_stats = get_player_stats(player_map, h_name)
-    opposing_team_stats = get_opposing_team_stats(player_map, season, {h_id, a_id})
-
-    Enum.concat(player_stats, opposing_team_stats)
+    Enum.map(player_stats, &get_player_stats(&1, home_team))
   end
 
   def get_player_stats(player_map, home_team_name) do
