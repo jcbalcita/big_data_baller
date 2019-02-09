@@ -11,7 +11,7 @@ defmodule BigDataBaller do
       Timex.now()
       |> Timex.subtract(Timex.Duration.from_days(1))
       |> Timex.format!("{YYYY}-{M}-{D}")
-      |> String.split("/")
+      |> String.split("-")
       |> List.to_tuple()
 
     box_scores(yesterday)
