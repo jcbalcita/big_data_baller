@@ -21,11 +21,11 @@ defmodule BigDataBaller.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nba, "~> 0.6"},
+      {:nba, path: "/mnt/d/code/elixir_nba"},
+      {:jason, "~> 1.1"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_dynamo, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
-      {:poison, "~> 4.0"},
       {:sweet_xml, "~> 0.6.5"},
       {:hackney, "~> 1.9"},
       {:timex, "~> 3.1"},

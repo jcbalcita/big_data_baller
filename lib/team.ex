@@ -25,7 +25,7 @@ defmodule BigDataBaller.Team do
       
       Process.sleep(999)
 
-      Poison.encode!(result)
+      Jason.encode!(result)
       |> Util.write_to_s3(s3_path)
     else
       {:error, message} -> IO.puts message

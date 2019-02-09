@@ -11,7 +11,7 @@ defmodule BigDataBaller do
       Timex.now()
       |> Timex.subtract(Timex.Duration.from_days(1))
       |> Timex.format!("{YYYY}-{M}-{D}")
-      |> String.split("/")
+      |> String.split("-")
       |> List.to_tuple()
 
     box_scores(yesterday)
@@ -57,7 +57,7 @@ defmodule BigDataBaller do
 
     case Nba.Stats.box_score(%{"GameID" => gid, "Season" => season_value}) do
       {:ok, response} ->
-        Poison.encode!(response) |> Util.write_to_s3(s3_path)
+        Jason.encode!(response) |> Util.write_to_s3(s3_path)
 
       {:error, message} ->
         IO.puts("Error fetching box score for #{gid}-#{game_code}... #{message}")

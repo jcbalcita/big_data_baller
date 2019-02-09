@@ -12,11 +12,14 @@ defmodule BigDataBaller.Util do
     |> season_year_suffix()
   end
 
-  def season_year_from_filepath(filepath) do
-    {season_start_year, _} = filepath |> String.split("/") |> Enum.at(1) |> Integer.parse()
-    season_end_year = (season_start_year + 1) |> Integer.to_string() |> String.slice(2..3)
+  def season_year(start_year) do
+    "#{start_year}" <> "-" <> season_year_suffix(start_year)
+  end
 
-    "#{season_start_year}" <> "-" <> season_end_year
+  def season_year_from_filepath(filepath) do
+    IO.puts filepath
+    {season_start_year, _} = filepath |> String.split("/") |> Enum.at(2) |> Integer.parse()
+    season_year(season_start_year)
   end
 
   def home_and_away_teams_from_filepath(filepath) do
