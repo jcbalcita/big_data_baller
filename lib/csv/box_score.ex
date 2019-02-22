@@ -28,15 +28,14 @@ defmodule BigDataBaller.CsvWriter.BoxScore do
   defp player_rows(filepath) do
     with {:ok, body} <- File.read(filepath),
          {:ok, json} <- Jason.decode(body),
-         home_away_names <- Util.home_and_away_teams_from_filepath(filepath),
-         season <- Util.season_year_from_filepath(filepath) do
-      create_rows(json, season, home_away_names)
+         home_away_names <- Util.home_and_away_teams_from_filepath(filepath) do
+      create_rows(json, home_away_names)
     else
       _ -> IO.puts("[ERROR] Unable to ro read #{filepath}")
     end
   end
 
-  def create_rows(box_score, season, home_away_names) do
+  def create_rows(box_score, home_away_names) do
     player_stats = Map.get(box_score, "PlayerStats")
     team_stats = Map.get(box_score, "TeamStats")
     [{_, home_team} | _ ] = get_team_home_away_status(team_stats, home_away_names)
@@ -99,8 +98,5 @@ defmodule BigDataBaller.CsvWriter.BoxScore do
       |> Map.get("TEAM_ID")
 
     [{home_id, home_name}, {away_id, away_name}]
-  end
-
-  defp get_opposing_team_stats(player_map, season, {home_team_id, away_team_id}) do
   end
 end
